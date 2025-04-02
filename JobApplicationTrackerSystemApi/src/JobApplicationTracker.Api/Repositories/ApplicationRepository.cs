@@ -5,6 +5,8 @@ namespace JobApplicationTracker.Api.Repositories;
 
 public interface IApplicationRepository
 {
+    bool ApplicationExists(long id);
+
     Task<Application> GetApplication(long id, CancellationToken token = default);
 
     Task<IEnumerable<Application>> GetPaginatedApplications(
@@ -21,11 +23,16 @@ public interface IApplicationRepository
         CancellationToken token = default
     );
 
-    Task UpdateApplication(ApplicationStatus applicationStatus);
+    Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken token = default);
 }
 
 public class ApplicationRepository : IApplicationRepository
 {
+    public bool ApplicationExists(long id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Application> GetApplication(long id, CancellationToken token = default)
     {
         throw new NotImplementedException();
@@ -43,6 +50,11 @@ public class ApplicationRepository : IApplicationRepository
         DateTime dateApplied,
         CancellationToken token = default
     )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken token = default)
     {
         throw new NotImplementedException();
     }

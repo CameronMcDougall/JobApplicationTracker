@@ -1,11 +1,12 @@
 using JobApplicationTracker.Api.Models.Requests;
+using JobApplicationTracker.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobApplicationTracker.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ApplicationsController(ILogger<ApplicationsController> logger) : ControllerBase
+    public class ApplicationsController(IApplicationService applicationService, ILogger<ApplicationsController> logger) : ControllerBase
     {
         /// <summary>
         /// GetApplication all applications with optional pagination

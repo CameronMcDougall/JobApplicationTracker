@@ -10,9 +10,9 @@ public interface IApplicationService
 
     Task<IEnumerable<Application>> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken= default);
 
-    Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied);
+    Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default);
 
-    Task UpdateApplication(ApplicationStatus applicationStatus);
+    Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
 }
 
 public class ApplicationService : IApplicationService
@@ -34,12 +34,12 @@ public class ApplicationService : IApplicationService
         throw new NotImplementedException();
     }
 
-    public Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied)
+    public Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task UpdateApplication(ApplicationStatus applicationStatus)
+    public Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

@@ -10,5 +10,5 @@ public class ApplicationDto
 
     public ApplicationStatusDto Status { get; set; }
 
-    public DateTime DateApplied { get; set; }
+    public DateTime AppliedDate { get; set; }
 }
