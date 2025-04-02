@@ -1,4 +1,6 @@
 using System.Reflection;
+using JobApplicationTracker.Api.Repositories;
+using JobApplicationTracker.Api.Services;
 using JobApplicationTracker.Domain;
 using Microsoft.OpenApi.Models;
 
@@ -6,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services
+    .AddSingleton<IApplicationService, ApplicationService>()
+    .AddScoped<IApplicationRepository, ApplicationRepository>();
 
 builder.Services.AddDbContext<JobApplicationTrackerDbContext>(
     _ =>
