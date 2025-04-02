@@ -5,17 +5,49 @@ namespace JobApplicationTracker.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ApplicationsController : ControllerBase
+    public class ApplicationsController(ILogger<ApplicationsController> logger) : ControllerBase
     {
-        private readonly ILogger<ApplicationsController> _logger;
-
-        public ApplicationsController(ILogger<ApplicationsController> logger)
+        /// <summary>
+        /// Get all applications with optional pagination
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpGet]
+        public Task<IActionResult> Get(GetApplicationsRequestDto request)
         {
-            _logger = logger;
+            throw new NotImplementedException();
         }
 
-        [HttpGet]
-        public Task<IActionResult> Get(GetApplicationsRequest request)
+        /// <summary>
+        /// Get application by id
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpGet("/{Id:long}")]
+        public Task<IActionResult> GetById(GetApplicationRequestDto request)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Add an application
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpPost]
+        public Task<IActionResult> Add()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Update an application
+        /// </summary>
+        /// <returns></returns>
+        [HttpPatch("/{Id:long}")]
+        public Task<IActionResult> Update()
         {
             throw new NotImplementedException();
         }

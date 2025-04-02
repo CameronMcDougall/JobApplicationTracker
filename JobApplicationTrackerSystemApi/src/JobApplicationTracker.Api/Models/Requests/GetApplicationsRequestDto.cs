@@ -2,7 +2,7 @@
 
 namespace JobApplicationTracker.Api.Models.Requests
 {
-    public class GetApplicationsRequest
+    public class GetApplicationsRequestDto
     {
         [FromQuery]
         public uint? PageSize { get; set; }
