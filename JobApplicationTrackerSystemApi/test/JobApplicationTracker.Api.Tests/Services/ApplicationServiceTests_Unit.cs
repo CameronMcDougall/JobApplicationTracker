@@ -5,7 +5,7 @@ using Moq;
 using DatabaseApplicationStatus = JobApplicationTracker.Domain.Models.Enums.ApplicationStatus;
 using DatabaseApplication = JobApplicationTracker.Domain.Models.Application;
 
-namespace JobApplicationTracker.Api.Tests;
+namespace JobApplicationTracker.Api.Tests.Services;
 
 public class ApplicationServiceTests_Unit
 {
