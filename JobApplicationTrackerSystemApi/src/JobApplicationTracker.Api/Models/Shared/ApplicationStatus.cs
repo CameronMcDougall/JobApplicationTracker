@@ -1,4 +1,4 @@
-﻿namespace JobApplicationTracker.Domain.Models.Enums;
+﻿namespace JobApplicationTracker.Api.Models.Shared;
 
 public enum ApplicationStatus
 {

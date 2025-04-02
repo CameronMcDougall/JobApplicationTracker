@@ -8,7 +8,7 @@ namespace JobApplicationTracker.Api.Controllers
     public class ApplicationsController(ILogger<ApplicationsController> logger) : ControllerBase
     {
         /// <summary>
-        /// Get all applications with optional pagination
+        /// GetApplication all applications with optional pagination
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -20,7 +20,7 @@ namespace JobApplicationTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Get application by id
+        /// GetApplication application by id
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -34,10 +34,11 @@ namespace JobApplicationTracker.Api.Controllers
         /// <summary>
         /// Add an application
         /// </summary>
+        /// <param name="request"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPost]
-        public Task<IActionResult> Add()
+        public Task<IActionResult> Add(AddApplicationRequestDto request)
         {
             throw new NotImplementedException();
         }
@@ -45,9 +46,10 @@ namespace JobApplicationTracker.Api.Controllers
         /// <summary>
         /// Update an application
         /// </summary>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPatch("/{Id:long}")]
-        public Task<IActionResult> Update()
+        public Task<IActionResult> Update(UpdateApplicationRequestDto request)
         {
             throw new NotImplementedException();
         }

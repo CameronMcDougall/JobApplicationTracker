@@ -14,12 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JobApplicationTracker.Domain\JobApplicationTracker.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\JobApplicationTracker.Domain\JobApplicationTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>
