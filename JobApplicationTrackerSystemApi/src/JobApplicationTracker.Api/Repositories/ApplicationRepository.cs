@@ -27,11 +27,6 @@ public interface IApplicationRepository
 
 public class ApplicationRepository(JobApplicationTrackerDbContext dbContext) : IApplicationRepository
 {
-    public bool ApplicationExists(long id)
-    {
-        var application = dbContext.Applications.Find(id);
-        return application != null;
-    }
 
     public Task<Application> GetApplication(long id, CancellationToken token = default)
     {
