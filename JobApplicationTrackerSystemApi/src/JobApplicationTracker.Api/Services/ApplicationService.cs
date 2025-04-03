@@ -13,7 +13,7 @@ public interface IApplicationService
 
     Task<AddApplicationResult> AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default);
 
-    Task<UpdateApplicationResult> UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
+    Task<UpdateApplicationResult> UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
 }
 
 public class ApplicationService : IApplicationService
@@ -40,7 +40,7 @@ public class ApplicationService : IApplicationService
         throw new NotImplementedException();
     }
 
-    public Task<UpdateApplicationResult> UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
+    public Task<UpdateApplicationResult> UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

@@ -19,15 +19,16 @@ public class ApplicationServiceTests_Unit
         DatabaseApplicationStatus expectedStatus
     )
     {
+        var id = 4l;
         var repo = new Mock<IApplicationRepository>();
         var service = new ApplicationService(repo.Object);
 
-        var result = await service.UpdateApplication(givenStatus, CancellationToken.None);
+        var result = await service.UpdateApplication(id, givenStatus, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(UpdateApplicationStatus.Success, result.Status);
 
-        repo.Verify(e => e.UpdateApplication(expectedStatus, It.IsAny<CancellationToken>()), Times.Once);
+        repo.Verify(e => e.UpdateApplication(id, expectedStatus, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

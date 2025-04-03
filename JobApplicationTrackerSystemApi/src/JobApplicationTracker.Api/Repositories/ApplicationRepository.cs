@@ -1,12 +1,11 @@
-﻿using JobApplicationTracker.Domain.Models;
+﻿using JobApplicationTracker.Domain;
+using JobApplicationTracker.Domain.Models;
 using JobApplicationTracker.Domain.Models.Enums;
 
 namespace JobApplicationTracker.Api.Repositories;
 
 public interface IApplicationRepository
 {
-    bool ApplicationExists(long id);
-
     Task<Application> GetApplication(long id, CancellationToken token = default);
 
     Task<IEnumerable<Application>> GetPaginatedApplications(
@@ -23,14 +22,15 @@ public interface IApplicationRepository
         CancellationToken token = default
     );
 
-    Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken token = default);
+    Task UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken token = default);
 }
 
-public class ApplicationRepository : IApplicationRepository
+public class ApplicationRepository(JobApplicationTrackerDbContext dbContext) : IApplicationRepository
 {
     public bool ApplicationExists(long id)
     {
-        throw new NotImplementedException();
+        var application = dbContext.Applications.Find(id);
+        return application != null;
     }
 
     public Task<Application> GetApplication(long id, CancellationToken token = default)
@@ -59,7 +59,7 @@ public class ApplicationRepository : IApplicationRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateApplication(ApplicationStatus applicationStatus)
+    public Task UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken token = default)
     {
         throw new NotImplementedException();
     }
