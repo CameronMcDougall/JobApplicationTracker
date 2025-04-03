@@ -1,7 +1,11 @@
+using AutoMapper;
+using JobApplicationTracker.Api.MappingProfiles;
+using JobApplicationTracker.Api.Models;
 using JobApplicationTracker.Api.Models.Results.Enums;
 using JobApplicationTracker.Api.Models.Shared;
 using JobApplicationTracker.Api.Repositories;
 using JobApplicationTracker.Api.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 using DatabaseApplicationStatus = JobApplicationTracker.Domain.Models.Enums.ApplicationStatus;
 using DatabaseApplication = JobApplicationTracker.Domain.Models.Application;
@@ -19,9 +23,13 @@ public class ApplicationServiceTests_Unit
         DatabaseApplicationStatus expectedStatus
     )
     {
-        var id = 4l;
+        const long id = 4L;
         var repo = new Mock<IApplicationRepository>();
-        var service = new ApplicationService(repo.Object);
+        var mapper = new Mapper(
+            new MapperConfiguration(cfg => cfg.AddProfiles([new ApplicationMappingProfile()]))
+        );
+        var mockLogger = new Mock<ILogger<ApplicationService>>();
+        var service = new ApplicationService(repo.Object, mapper, mockLogger.Object);
 
         var result = await service.UpdateApplication(id, givenStatus, CancellationToken.None);
 
@@ -41,11 +49,15 @@ public class ApplicationServiceTests_Unit
             new DateTime(2025, 04, 02)
         );
 
+        var mapper = new Mapper(
+            new MapperConfiguration(cfg => cfg.AddProfiles([new ApplicationMappingProfile()]))
+        );
+        var mockLogger = new Mock<ILogger<ApplicationService>>();
         var repo = new Mock<IApplicationRepository>();
         repo
             .Setup(e => e.GetApplication(application.Id, It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(application));
-        var service = new ApplicationService(repo.Object);
+            .ReturnsAsync(application);
+        var service = new ApplicationService(repo.Object, mapper, mockLogger.Object);
 
         var result = await service.GetApplication(application.Id, CancellationToken.None);
 
@@ -61,7 +73,7 @@ public class ApplicationServiceTests_Unit
     }
 
     [Fact]
-    public async Task GetApplications_WithPaging_ReturnsCorrectSize()
+    public void GetApplications_WithPaging_ReturnsCorrectSize()
     {
         var applications = new List<DatabaseApplication>();
         const int pageSize = 10;
@@ -83,12 +95,24 @@ public class ApplicationServiceTests_Unit
 
         var repo = new Mock<IApplicationRepository>();
         repo
-            .Setup(e => e.GetPaginatedApplications(pageSize, currentPage, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(applications);
+            .Setup(e => e.GetPaginatedApplications(pageSize, currentPage, PagingOrder.Ascending))
+            .Returns(new PaginatedResult<DatabaseApplication>
+            {
+                Items = applications, 
+                PagingInfo = new PagingInfo
+                {
+                    Current = 1,
+                    TotalItems = pageSize,
+                    TotalPages = 1
+                }
+            });
+        var mapper = new Mapper(
+            new MapperConfiguration(cfg => cfg.AddProfiles([new ApplicationMappingProfile()]))
+        );
+        var mockLogger = new Mock<ILogger<ApplicationService>>();
+        var service = new ApplicationService(repo.Object, mapper, mockLogger.Object);
 
-        var service = new ApplicationService(repo.Object);
-
-        var result = await service.GetApplications(pageSize, currentPage, CancellationToken.None);
+        var result = service.GetApplications(pageSize, currentPage, PagingOrder.Ascending);
         Assert.NotNull(result);
         Assert.Equal(GetApplicationsStatus.Success, result.Status);
 
@@ -107,7 +131,11 @@ public class ApplicationServiceTests_Unit
         );
 
         var repo = new Mock<IApplicationRepository>();
-        var service = new ApplicationService(repo.Object);
+        var mockLogger = new Mock<ILogger<ApplicationService>>();
+        var mapper = new Mapper(
+            new MapperConfiguration(cfg => cfg.AddProfiles([new ApplicationMappingProfile()]))
+        );
+        var service = new ApplicationService(repo.Object, mapper, mockLogger.Object);
 
         var result = await service.AddApplication(
             application.CompanyName,

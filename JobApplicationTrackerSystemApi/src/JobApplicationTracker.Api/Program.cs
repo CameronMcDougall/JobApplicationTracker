@@ -1,21 +1,29 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
+using JobApplicationTracker.Api.MappingProfiles;
 using JobApplicationTracker.Api.Repositories;
 using JobApplicationTracker.Api.Services;
 using JobApplicationTracker.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+}); ;
 
 builder.Services
-    .AddSingleton<IApplicationService, ApplicationService>()
+    .AddScoped<IApplicationService, ApplicationService>()
     .AddScoped<IApplicationRepository, ApplicationRepository>();
-
+builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 builder.Services.AddDbContext<JobApplicationTrackerDbContext>(
-    _ =>
-        builder.Configuration.GetConnectionString("DefaultConnection")
+    options =>
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
 );
 
 builder.Services.AddSwaggerGen(c =>
@@ -32,6 +40,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+using var scope = app.Services.CreateScope();
+var dbContext = scope.ServiceProvider.GetRequiredService<JobApplicationTrackerDbContext>();
+
+dbContext.Database.Migrate();
 
 app.UseSwagger();
 app.UseSwaggerUI(options => { options.SwaggerEndpoint("v1/swagger.json", "JobApplicationTracking.SystemApi v1"); });

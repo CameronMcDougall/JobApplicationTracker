@@ -1,6 +1,6 @@
-﻿namespace JobApplicationTracker.Api.Models.Shared;
+﻿namespace JobApplicationTracker.Api.Models;
 
-public class PagingInfoDto
+public class PagingInfo
 {
     public int Current { get; set; }
 

@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using JobApplicationTracker.Api.Models.Requests;
 using JobApplicationTracker.Api.Models.Responses;
 using JobApplicationTracker.Api.Models.Shared;
@@ -46,7 +48,11 @@ public class ApplicationsControllerTests
         Assert.NotNull(response);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var responseBody = await response.Content.ReadFromJsonAsync<GetApplicationResponseDto>();
+        var responseBody = await response.Content.ReadFromJsonAsync<GetApplicationResponseDto>(new JsonSerializerOptions
+        {
+            Converters = { new JsonStringEnumConverter() },
+            PropertyNameCaseInsensitive = true
+        });
 
         Assert.NotNull(responseBody);
         Assert.NotNull(responseBody.Application);
@@ -60,22 +66,13 @@ public class ApplicationsControllerTests
     [Fact]
     public async Task GetApplication_NotExistantApplication_Returns404()
     {
-        var application = new Application(
-            "Datacom",
-            "Developer",
-            ApplicationStatus.Interview,
-            new DateTime(2025, 04, 02)
-        );
-        _dbContext.Applications.Add(application);
-        await _dbContext.SaveChangesAsync();
-
-        var result = await _client.GetAsync($"{ApplicationsBaseUrl}/{application.Id}");
+        var result = await _client.GetAsync($"{ApplicationsBaseUrl}/{44}");
         Assert.NotNull(result);
         Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
     }
 
     [Fact]
-    public async Task GetApplications_WithPagination_Returns404()
+    public async Task GetApplications_WithPagination_ReturnsOK()
     {
 
         for (var i = 0; i < 10; i++)
@@ -91,9 +88,9 @@ public class ApplicationsControllerTests
 
         await _dbContext.SaveChangesAsync();
 
-        var result = await _client.GetAsync($"{ApplicationsBaseUrl}?pageSize=20&pageNumber=0");
+        var result = await _client.GetAsync($"{ApplicationsBaseUrl}?pageSize=10&pageNumber=0");
         Assert.NotNull(result);
-        Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, result.StatusCode);
     }
 
     [Fact]

@@ -3,6 +3,5 @@
 public enum GetApplicationStatus
 {
     Success,
-    ApplicationDoesNotExist,
-    FailedToRetrieve
+    ApplicationDoesNotExist
 }

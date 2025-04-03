@@ -3,6 +3,5 @@
 public enum UpdateApplicationStatus
 {
     Success,
-    ApplicationDoesNotExist,
-    FailToUpdate
+    ApplicationDoesNotExist
 }

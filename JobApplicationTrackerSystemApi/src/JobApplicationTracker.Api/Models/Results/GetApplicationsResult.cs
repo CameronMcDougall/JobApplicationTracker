@@ -7,4 +7,6 @@ public class GetApplicationsResult
     public GetApplicationsStatus Status { get; set; }
 
     public IEnumerable<Application> Applications { get; set; }
+
+    public PagingInfo? PagingInfo { get; set; }
 }

@@ -2,6 +2,5 @@
 
 public enum AddApplicationStatus
 {
-    Success,
-    FailedToAdd
+    Success
 }

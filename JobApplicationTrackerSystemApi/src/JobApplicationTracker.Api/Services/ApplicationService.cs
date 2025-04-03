@@ -1,5 +1,8 @@
-﻿using JobApplicationTracker.Api.Models;
+﻿using AutoMapper;
+using JobApplicationTracker.Api.Exceptions;
+using JobApplicationTracker.Api.Models;
 using JobApplicationTracker.Api.Models.Results;
+using JobApplicationTracker.Api.Models.Results.Enums;
 using JobApplicationTracker.Api.Models.Shared;
 using JobApplicationTracker.Api.Repositories;
 
@@ -9,39 +12,99 @@ public interface IApplicationService
 {
     Task<GetApplicationResult> GetApplication(long id, CancellationToken cancellationToken = default);
 
-    Task<GetApplicationsResult> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken= default);
+    GetApplicationsResult GetApplications(uint? pageSize, uint? pageNumber, PagingOrder order);
 
-    Task<AddApplicationResult> AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default);
+    Task<AddApplicationResult> AddApplication(
+        string companyName,
+        string position,
+        ApplicationStatus applicationStatus,
+        DateTime dateApplied,
+        CancellationToken cancellationToken = default
+    );
 
-    Task<UpdateApplicationResult> UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
+    Task<UpdateApplicationResult> UpdateApplication(
+        long id,
+        ApplicationStatus applicationStatus,
+        CancellationToken cancellationToken = default
+    );
 }
 
-public class ApplicationService : IApplicationService
+public class ApplicationService(IApplicationRepository repository, IMapper mapper, ILogger<ApplicationService> logger)
+    : IApplicationService
 {
-    private readonly IApplicationRepository _repository;
-
-    public ApplicationService(IApplicationRepository repository)
+    public async Task<GetApplicationResult> GetApplication(long id, CancellationToken cancellationToken = default)
     {
-        _repository = repository;
+        var application = await repository.GetApplication(id, cancellationToken);
+        if (application == null)
+        {
+            logger.LogWarning("Application {Id} does not exist", id);
+            return new GetApplicationResult
+            {
+                Status = GetApplicationStatus.ApplicationDoesNotExist
+            };
+        }
+
+        var mappedApplication = mapper.Map<Application>(application);
+        return new GetApplicationResult
+        {
+            Status = GetApplicationStatus.Success,
+            Application = mappedApplication
+        };
     }
 
-    public Task<GetApplicationResult> GetApplication(long id, CancellationToken cancellationToken = default)
+    public GetApplicationsResult GetApplications(uint? pageSize, uint? pageNumber, PagingOrder order)
     {
-        throw new NotImplementedException();
+        var paginatedApplications = repository.GetPaginatedApplications(pageSize, pageNumber, order);
+        var mappedApplications = mapper.Map<IEnumerable<Application>>(paginatedApplications.Items);
+
+        return new GetApplicationsResult
+        {
+            Applications = mappedApplications,
+            Status = GetApplicationsStatus.Success,
+            PagingInfo = paginatedApplications.PagingInfo
+        };
     }
 
-    public Task<GetApplicationsResult> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken = default)
+    public async Task<AddApplicationResult> AddApplication(
+        string companyName,
+        string position,
+        ApplicationStatus applicationStatus,
+        DateTime dateApplied,
+        CancellationToken cancellationToken = default
+    )
     {
-        throw new NotImplementedException();
+        var mappedStatus = mapper.Map<Domain.Models.Enums.ApplicationStatus>(applicationStatus);
+        await repository.AddApplication(companyName, position, mappedStatus, dateApplied, cancellationToken);
+
+        return new AddApplicationResult
+        {
+            Status = AddApplicationStatus.Success
+        };
     }
 
-    public Task<AddApplicationResult> AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default)
+    public async Task<UpdateApplicationResult> UpdateApplication(
+        long id,
+        ApplicationStatus applicationStatus,
+        CancellationToken cancellationToken = default
+    )
     {
-        throw new NotImplementedException();
-    }
+        var mappedStatus = mapper.Map<Domain.Models.Enums.ApplicationStatus>(applicationStatus);
+        try
+        {
+            await repository.UpdateApplication(id, mappedStatus, cancellationToken);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            logger.LogError(ex, "Failed to find application {Id}", id);
+            return new UpdateApplicationResult
+            {
+                Status = UpdateApplicationStatus.ApplicationDoesNotExist
+            };
+        }
 
-    public Task<UpdateApplicationResult> UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        return new UpdateApplicationResult
+        {
+            Status = UpdateApplicationStatus.Success
+        };
     }
 }

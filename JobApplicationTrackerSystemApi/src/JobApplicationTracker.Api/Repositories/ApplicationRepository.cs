@@ -1,17 +1,19 @@
-﻿using JobApplicationTracker.Domain;
-using JobApplicationTracker.Domain.Models;
+﻿using JobApplicationTracker.Api.Exceptions;
+using JobApplicationTracker.Api.Models;
+using JobApplicationTracker.Domain;
 using JobApplicationTracker.Domain.Models.Enums;
+using Application = JobApplicationTracker.Domain.Models.Application;
 
 namespace JobApplicationTracker.Api.Repositories;
 
 public interface IApplicationRepository
 {
-    Task<Application> GetApplication(long id, CancellationToken token = default);
+    Task<Application?> GetApplication(long id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<Application>> GetPaginatedApplications(
+    PaginatedResult<Application> GetPaginatedApplications(
         uint? pageSize,
         uint? pageNumber,
-        CancellationToken token = default
+        PagingOrder order
     );
 
     Task AddApplication(
@@ -19,43 +21,88 @@ public interface IApplicationRepository
         string position,
         ApplicationStatus status,
         DateTime dateApplied,
-        CancellationToken token = default
+        CancellationToken cancellationToken = default
     );
 
-    Task UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken token = default);
+    Task UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
 }
 
-public class ApplicationRepository(JobApplicationTrackerDbContext dbContext) : IApplicationRepository
+public class ApplicationRepository(JobApplicationTrackerDbContext dbContext, ILogger<ApplicationRepository> logger)
+    : IApplicationRepository
 {
-
-    public Task<Application> GetApplication(long id, CancellationToken token = default)
+    public async Task<Application?> GetApplication(long id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await dbContext.Applications.FindAsync(id, cancellationToken);
     }
 
-    public Task<IEnumerable<Application>> GetPaginatedApplications(uint? pageSize, uint? pageNumber, CancellationToken token = default)
+    public PaginatedResult<Application> GetPaginatedApplications(
+        uint? pageSize,
+        uint? pageNumber,
+        PagingOrder order
+    )
     {
-        throw new NotImplementedException();
+        if (!pageSize.HasValue || !pageNumber.HasValue)
+        {
+            logger.LogDebug("PageSize and Page Number not provided. Skipping Pagination");
+            return new PaginatedResult<Application>
+            {
+                Items = dbContext.Applications.AsEnumerable()
+            };
+        }
+
+        var skippedAmount = pageSize.Value * pageNumber.Value;
+        var applications = OrderApplications(order);
+        var skipped = applications.Skip((int)skippedAmount).Take((int)pageSize.Value);
+
+        var count = dbContext.Applications.Count();
+        return new PaginatedResult<Application>
+        {
+            Items = skipped,
+            PagingInfo = new PagingInfo
+            {
+                Current = (int)pageNumber,
+                TotalItems = count,
+                TotalPages = (int)Math.Ceiling((double)count / pageSize ?? 1)
+            }
+        };
     }
 
-    public Task AddApplication(
+    public async Task AddApplication(
         string companyName,
         string position,
         ApplicationStatus status,
         DateTime dateApplied,
-        CancellationToken token = default
+        CancellationToken cancellationToken = default
     )
     {
-        throw new NotImplementedException();
+        var application = new Application(companyName, position, status, dateApplied);
+        await dbContext.Applications.AddAsync(application, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken token = default)
+    public async Task UpdateApplication(
+        long id,
+        ApplicationStatus applicationStatus,
+        CancellationToken cancellationToken = default
+    )
     {
-        throw new NotImplementedException();
+        var application = await GetApplication(id, cancellationToken);
+        if (application == null)
+        {
+            throw new EntityNotFoundException(nameof(Application));
+        }
+
+        application.Status = applicationStatus;
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateApplication(long id, ApplicationStatus applicationStatus, CancellationToken token = default)
+    private IEnumerable<Application> OrderApplications(PagingOrder order)
     {
-        throw new NotImplementedException();
+        return order switch
+        {
+            PagingOrder.Ascending => dbContext.Applications.OrderByDescending(e => e.Id),
+            PagingOrder.Descending => dbContext.Applications.OrderBy(e => e.Id),
+            _ => throw new ArgumentOutOfRangeException(nameof(order), order, null)
+        };
     }
 }

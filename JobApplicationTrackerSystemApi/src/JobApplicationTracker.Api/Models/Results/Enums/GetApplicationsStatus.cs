@@ -2,6 +2,5 @@
 
 public enum GetApplicationsStatus
 {
-    Success,
-    FailedToRetrieve
+    Success
 }
