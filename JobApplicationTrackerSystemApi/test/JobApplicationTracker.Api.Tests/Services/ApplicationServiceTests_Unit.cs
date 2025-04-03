@@ -1,3 +1,4 @@
+using JobApplicationTracker.Api.Models.Results.Enums;
 using JobApplicationTracker.Api.Models.Shared;
 using JobApplicationTracker.Api.Repositories;
 using JobApplicationTracker.Api.Services;
@@ -21,7 +22,10 @@ public class ApplicationServiceTests_Unit
         var repo = new Mock<IApplicationRepository>();
         var service = new ApplicationService(repo.Object);
 
-        await service.UpdateApplication(givenStatus, CancellationToken.None);
+        var result = await service.UpdateApplication(givenStatus, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(UpdateApplicationStatus.Success, result.Status);
 
         repo.Verify(e => e.UpdateApplication(expectedStatus, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -44,11 +48,15 @@ public class ApplicationServiceTests_Unit
 
         var result = await service.GetApplication(application.Id, CancellationToken.None);
 
-        Assert.Equal(application.Id, result.Id);
-        Assert.Equal(application.CompanyName, result.CompanyName);
-        Assert.Equal(application.AppliedDate, result.AppliedDate);
-        Assert.Equal(application.Position, result.Position);
-        Assert.Equal(ApplicationStatus.Interview, result.Status);
+        Assert.NotNull(result);
+        Assert.Equal(GetApplicationStatus.Success, result.Status);
+
+        var resultApplication = result.Application;
+        Assert.Equal(application.Id, resultApplication.Id);
+        Assert.Equal(application.CompanyName, resultApplication.CompanyName);
+        Assert.Equal(application.AppliedDate, resultApplication.AppliedDate);
+        Assert.Equal(application.Position, resultApplication.Position);
+        Assert.Equal(ApplicationStatus.Interview, resultApplication.Status);
     }
 
     [Fact]
@@ -80,7 +88,11 @@ public class ApplicationServiceTests_Unit
         var service = new ApplicationService(repo.Object);
 
         var result = await service.GetApplications(pageSize, currentPage, CancellationToken.None);
-        Assert.Equal(pageSize, result.Count());
+        Assert.NotNull(result);
+        Assert.Equal(GetApplicationsStatus.Success, result.Status);
+
+        var resultApplications = result.Applications;
+        Assert.Equal(pageSize, resultApplications.Count());
     }
 
     [Fact]
@@ -96,13 +108,16 @@ public class ApplicationServiceTests_Unit
         var repo = new Mock<IApplicationRepository>();
         var service = new ApplicationService(repo.Object);
 
-        await service.AddApplication(
+        var result = await service.AddApplication(
             application.CompanyName,
             application.Position,
             ApplicationStatus.Interview,
             application.AppliedDate,
             CancellationToken.None
         );
+
+        Assert.NotNull(result);
+        Assert.Equal(AddApplicationStatus.Success, result.Status);
 
         repo.Verify(
             e => e.AddApplication(

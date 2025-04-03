@@ -1,4 +1,5 @@
 ﻿using JobApplicationTracker.Api.Models;
+using JobApplicationTracker.Api.Models.Results;
 using JobApplicationTracker.Api.Models.Shared;
 using JobApplicationTracker.Api.Repositories;
 
@@ -6,13 +7,13 @@ namespace JobApplicationTracker.Api.Services;
 
 public interface IApplicationService
 {
-    Task<Application> GetApplication(long id, CancellationToken cancellationToken = default);
+    Task<GetApplicationResult> GetApplication(long id, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<Application>> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken= default);
+    Task<GetApplicationsResult> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken= default);
 
-    Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default);
+    Task<AddApplicationResult> AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default);
 
-    Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
+    Task<UpdateApplicationResult> UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default);
 }
 
 public class ApplicationService : IApplicationService
@@ -24,22 +25,22 @@ public class ApplicationService : IApplicationService
         _repository = repository;
     }
 
-    public Task<Application> GetApplication(long id, CancellationToken cancellationToken = default)
+    public Task<GetApplicationResult> GetApplication(long id, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Application>> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken = default)
+    public Task<GetApplicationsResult> GetApplications(uint? pageSize, uint pageNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default)
+    public Task<AddApplicationResult> AddApplication(string companyName, string position, ApplicationStatus applicationStatus, DateTime dateApplied, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
+    public Task<UpdateApplicationResult> UpdateApplication(ApplicationStatus applicationStatus, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
