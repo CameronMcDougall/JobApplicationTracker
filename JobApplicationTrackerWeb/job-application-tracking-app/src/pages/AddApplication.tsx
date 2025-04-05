@@ -6,6 +6,7 @@ import { AddApplicationRequest } from "../interfaces/requests/AddApplicationRequ
 import { ApplicationStatus } from "../enums/ApplicationStatus.enum";
 import DatePicker from "react-datepicker";
 import { ConvertApplicationStatus } from "../utils/applicationUtils";
+import { ToastContainer, toast } from 'react-toastify';
 import moment from "moment";
 import "moment-timezone";
 import "../css/addApplication.css";
@@ -17,7 +18,7 @@ function AddApplication() {
     const [applicationStatus, setApplicationStatus] = useState(ApplicationStatus.Interview);
     const navigate = useNavigate();
 
-    async function CreateApplication() {
+    function CreateApplication() {
         const request: AddApplicationRequest = {
             companyName: companyName,
             dateApplied: dateApplied,
@@ -25,10 +26,16 @@ function AddApplication() {
             status: applicationStatus
         }
 
-        let value = await ApplicationClient.addApplication(request);
-        if (value.statusCode == 201) {
-            navigate('/')
-        }
+        ApplicationClient.addApplication(request).then(response =>{
+            if (response.statusCode == 201) {
+                navigate('/')
+            }
+            else if (response.statusCode >= 400) {
+                toast.error('Failed to add application');
+            }
+        }).catch(error => {
+            toast.error('Failed to add application');
+        });
     }
 
     function HandleChangedStatus(value: string | null) {
@@ -41,6 +48,7 @@ function AddApplication() {
 
     return (<>
         <Container>
+            <ToastContainer />
             <Row>
                 <h2 id="add-application-title" className="text-center">Create a Application</h2>
             </Row>
@@ -61,10 +69,10 @@ function AddApplication() {
             <Row>
                 <Col className="col-sm-2"></Col>
                 <Col>
-                    <input name="company-name" aria-label="Company Name" value={companyName} onChange={(change) => setCompanyName(change.target.value)} />
+                    <input minLength={1} maxLength={30} name="company-name" aria-label="Company Name" value={companyName} onChange={(change) => setCompanyName(change.target.value)} />
                 </Col>
                 <Col>
-                    <input name="position" value={position} onChange={(change) => setPosition(change.target.value)} />
+                    <input name="position" minLength={1} maxLength={30} value={position} onChange={(change) => setPosition(change.target.value)} />
                 </Col>
                 <Col className="col-sm-2"></Col>
             </Row>
