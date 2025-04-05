@@ -17,3 +17,10 @@ cd .\JobApplicationTrackerWeb\job-application-tracking-app\
 npm install
 npm run start
 ```
+
+Screenshots
+
+[pagination](./screenshots/pagination.png)
+[create application](./screenshots/create-application.png)
+[view application](./screenshots/view-application.png)
+[update application](./screenshots/update-application.png)
