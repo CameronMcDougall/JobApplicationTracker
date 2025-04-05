@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
+using FluentValidation;
+using JobApplicationTracker.Api.Models.Requests;
 
 namespace JobApplicationTracker.Api.Tests;
 
@@ -25,6 +27,7 @@ public class TestStartup
             .AddSingleton<IApplicationService, ApplicationService>()
             .AddScoped<IApplicationRepository, ApplicationRepository>();
         services.AddAutoMapper([typeof(ApplicationMappingProfile)]);
+        services.AddValidatorsFromAssemblyContaining<AddApplicationRequestDtoValidator>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)

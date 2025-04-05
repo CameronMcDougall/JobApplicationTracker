@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using JobApplicationTracker.Api.Models;
 using JobApplicationTracker.Api.Models.Requests;
 using JobApplicationTracker.Api.Models.Responses;
@@ -45,7 +46,6 @@ namespace JobApplicationTracker.Api.Controllers
         /// <summary>
         /// GetApplication application by id
         /// </summary>
-        /// <param name="request"></param>
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
@@ -75,14 +75,21 @@ namespace JobApplicationTracker.Api.Controllers
         /// Add an application
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="validator"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Add([FromBody] AddApplicationRequestDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Add([FromBody] AddApplicationRequestDto request, [FromServices] IValidator<AddApplicationRequestDto> validator, CancellationToken cancellationToken)
         {
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
             var status = mapper.Map<ApplicationStatus>(request.Status);
             await applicationService.AddApplication(
                 request.CompanyName,

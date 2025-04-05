@@ -100,8 +100,8 @@ public class ApplicationRepository(JobApplicationTrackerDbContext dbContext, ILo
     {
         return order switch
         {
-            PagingOrder.Ascending => dbContext.Applications.OrderByDescending(e => e.Id),
-            PagingOrder.Descending => dbContext.Applications.OrderBy(e => e.Id),
+            PagingOrder.Descending => dbContext.Applications.OrderByDescending(e => e.Id),
+            PagingOrder.Ascending => dbContext.Applications.OrderBy(e => e.Id),
             _ => throw new ArgumentOutOfRangeException(nameof(order), order, null)
         };
     }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using FluentValidation;
 using JobApplicationTracker.Api.MappingProfiles;
 using JobApplicationTracker.Api.Repositories;
 using JobApplicationTracker.Api.Services;
@@ -12,8 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(opt =>
 {
-    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-}); ;
+    // opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services
     .AddScoped<IApplicationService, ApplicationService>()
@@ -25,6 +26,17 @@ builder.Services.AddDbContext<JobApplicationTrackerDbContext>(
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+builder.Services.AddCors(o =>
+{
+    o.AddDefaultPolicy(builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -50,7 +62,7 @@ app.UseSwaggerUI(options => { options.SwaggerEndpoint("v1/swagger.json", "JobApp
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
-
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
